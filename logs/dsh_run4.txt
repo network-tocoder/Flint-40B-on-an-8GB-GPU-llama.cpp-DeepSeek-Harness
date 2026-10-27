@@ -1,0 +1,24 @@
+dsh: reasoning:
+Let me start by exploring the repo structure and running the tests.
+dsh: reasoning:
+Bugs:
+
+1. `parse_price`: `float(cleaned.replace(".", ""))` — wrong. Should strip commas and currency: `float(cleaned.replace(",", "").replace("$", ""))` after removing $ and stripping. Actually "$45" -> 45.0, "1,299.50" -> 1299.5. So: `cleaned = text.replace("$", "").replace(",", "").strip()` then `float(cleaned)`.
+
+2. `apply_discount`: `price - percent` should be `price - price * percent / 100`. Test: apply_discount(200, 10) == 180.0; apply_discount(99.99, 0) == 99.99.
+
+3. `top_n`: sorted ascending, should be `reverse=True`; also `[:n]` should be `[:n]` after sorting descending — but for n larger than list, should return all. `ranked[:n]` works if n > len, returns all. With reverse=True, top_n(items, 2) should be ["b","c"] — highest price first. And top_n(items, 5) with 2 items returns both sorted descending by price: ["b", "a"]. Good.
+
+Let me fix.
+dsh: reasoning:
+Wait — the edit replaced the whole block including apply_discount since old_string contained both functions. But I need to check that the file didn't end up mangled. Let me re-read it. Actually my old_string was the whole two functions and new_string was the corrected versions — that should be fine, but let me verify.
+dsh: reasoning:
+Good. Now run tests again.
+dsh: reasoning:
+All 6 tests pass. Task complete.
+All tests now pass — **6 passed** with no failures.
+
+**Fixes made in `shop/`:**
+1. **`shop/pricing.py` – `parse_price`**: Was replacing `.` with `` (shredding the decimal separator, turning `"1,299.50"` into `129950.0`). Now strips both `$` and `,` before converting, so `"1,299.50"` → `1299.5` and `"$45"` → `45.0`.
+2. **`shop/pricing.py` – `apply_discount`**: Was subtracting the raw percent (`200 - 10 = 190`). Now applies a percentage (`200 - (200 * 10) / 100 = 180.0`).
+3. **`shop/ranking.py` – `top_n`**: Was sorting ascending (cheapest first) and returning the first `n`. Now sorts with `reverse=True` (highest price first).

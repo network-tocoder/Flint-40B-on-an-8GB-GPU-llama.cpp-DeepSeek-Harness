@@ -1,0 +1,1 @@
+RULE: When you call the write or edit tool, pass ONLY the file path and the content. Never add justification or sandbox_permissions. Never describe a change without making it.

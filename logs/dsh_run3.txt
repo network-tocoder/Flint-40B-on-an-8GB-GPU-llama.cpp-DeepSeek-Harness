@@ -1,0 +1,41 @@
+dsh: reasoning:
+Let me start by exploring the repository structure.
+dsh: reasoning:
+Let me run the tests first to see the current state.
+
+Bugs I can already see:
+
+1. `parse_price`: `'1,299.50'` should be 1299.5, but `text.replace(".", "")` gives "129950" -> 129950.0. Need to handle thousands separators. Also `'$45'` -> 45.0 works. Need to remove commas too. And strip. So: cleaned = text.replace("$","").replace(",","").strip(); return float(cleaned).
+
+Wait, `'1,299.50' -> 1299.5`: remove $ and commas, then float. float("1299.50") = 1299.5. Good.
+
+2. `apply_discount`: `return round(price - percent, 2)` should be `price * (1 - percent/100)`. For 200,10 -> 180.0 ✓. For 99.99, 0 -> 99.99 ✓ (99.99 - 0 = 99.99, round ok). But for e.g. 200,10: 200-10=190 wrong; should be 180. Fix: `round(price * (1 - percent / 100), 2)`.
+
+Wait, check test: apply_discount(200, 10) == 180.0. price - percent = 190. Wrong. Should be price * (1 - percent/100) = 180.
+
+3. `top_n`: should return the n most expensive, highest price first, sorted descending, take first n. Current sorts ascending and takes ranked[:n] — returns cheapest n, in ascending order.
+
+For test_top_n: items prices 5, 50, 20; top 2 should be ["b","c"] (50, 20). With sorted ascending by price: [a(5), c(20), b(50)], [:2] = [a, c] → names ["a","c"] ✗.
+
+Fix: `ranked = sorted(products, key=lambda p: p["price"], reverse=True); return ranked[:n]`.
+
+For test_top_n_all: n=5 > len, should return all sorted descending: [b(2), a(1)] → ["b","a"] ✓ with reverse sort.
+
+Let me run tests to confirm, then fix.
+dsh: reasoning:
+4 failures confirmed, matching the bugs I spotted:
+
+1. `parse_price`: thousands separator bug — removes "." but not ",". Should remove "$" and "," then float.
+2. `apply_discount`: `price - percent` should be percentage off: `price * (1 - percent / 100)`.
+3. `top_n`: sorted ascending instead of descending, and no reverse.
+
+Note test_discount_zero: apply_discount(99.99, 0) == 99.99 — with new formula: 99.99 * (1 - 0) = 99.99 ✓.
+
+Fix all three bugs.
+All 4 failures confirmed. I found the bugs:
+
+1. **`parse_price`**: strips `$` and `.` but not the thousands separator `,` — `"1,299.50"` becomes `"129950"`. Needs comma removal.
+2. **`apply_discount`**: computes `price - percent` instead of applying a percentage off (`price * (1 - percent / 100)`).
+3. **`top_n`**: sorts ascending and takes first n instead of sorting descending and taking top n.
+
+Let me fix all three:

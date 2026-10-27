@@ -1,0 +1,7 @@
+These tests fail. Fix the bugs in shop/pricing.py and shop/ranking.py so all tests pass. Do not change the tests. Reply with the FULL corrected content of each file you change, each as:
+### FILE: <path>
+```python
+<code>
+```
+
+(scripts/unattended.py appends the three files - shop/pricing.py, shop/ranking.py, tests/test_shop.py - below this text.)

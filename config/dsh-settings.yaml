@@ -1,0 +1,20 @@
+# $DSH_HOME/settings.yaml - points DeepSeek Harness at the local llama.cpp server.
+# No API key needed. Without this file, dsh falls back to DeepSeek's cloud.
+agent-default-model:
+  provider: llamacpp
+  model: flint
+llm-pi-ai:
+  providers:
+    llamacpp:
+      displayName: Flint local (llama.cpp)
+      apiKeyEnv: LLAMACPP_API_KEY
+      api: openai-completions
+      baseURL: http://127.0.0.1:8081/v1
+      compat:
+        supportsDeveloperRole: false
+        maxTokensField: max_tokens
+      models:
+        - id: flint
+          name: Flint
+          contextWindow: 32768
+          maxTokens: 16384

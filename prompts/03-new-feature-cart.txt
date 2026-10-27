@@ -1,0 +1,2 @@
+Read SPEC.md and implement shop/cart.py exactly as described. Write your own tests in tests/test_cart.py and make sure python -m pytest -q passes.
+RULE: When you call the write or edit tool, pass ONLY the file path and the content. Never add justification or sandbox_permissions. Never describe a change without making it.

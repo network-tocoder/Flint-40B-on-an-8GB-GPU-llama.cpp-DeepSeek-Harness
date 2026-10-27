@@ -1,0 +1,29 @@
+dsh: reasoning:
+Let me start by exploring the repository structure and running the tests.
+dsh: reasoning:
+Bugs:
+
+1. `parse_price`: strips `$` but not commas. `'1,299.50'` → replace "." with "" gives "1,29950". Should remove commas, and handle decimal properly. Fix: `cleaned = text.replace("$", "").replace(",", "").strip(); return float(cleaned)`. But careful: `"$45"` → 45.0; `"1,299.50"` → remove comma → "1299.50" → float 1299.5. Good.
+
+2. `apply_discount`: should be `price - price * percent / 100`. With percent=10, price=200 → 180.0.
+
+3. `top_n`: sorted ascending, should be reverse=True, and slice should be `ranked[:n]` — with n=2, top 2 highest. For `top_n_all` with n=5, all sorted descending → ["b","a"]. Fix: `sorted(products, key=lambda p: p["price"], reverse=True)[:n]`.
+
+Also check test_discount_zero: apply_discount(99.99, 0) == 99.99 → round(99.99 - 99.99*0/100, 2) = 99.99. Good.
+
+Now make edits.
+dsh: reasoning:
+Wait — for `parse_price("1,299.50")`, removing comma gives "1299.50", float → 1299.5. Good.
+
+Now run tests.
+dsh: reasoning:
+All 6 tests pass. Done.
+All tests now pass — **6 passed** in 0.01s (previously 4 failed, 2 passed).
+
+Bugs fixed in `shop/`:
+
+1. **`shop/pricing.py` – `parse_price`**: commas (thousands separators) weren't stripped before converting to float, causing `"1,299.50"` to fail. Fixed by removing `,` in addition to `$`.
+
+2. **`shop/pricing.py` – `apply_discount`**: computed `price - percent` instead of applying the percentage. Fixed to `price - price * percent / 100`.
+
+3. **`shop/ranking.py` – `top_n`**: sorted ascending (lowest first) instead of descending. Added `reverse=True` to get highest prices first.

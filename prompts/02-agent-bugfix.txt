@@ -1,0 +1,1 @@
+Run the tests with python -m pytest -q. Some of them fail because of bugs in the shop package. Find and fix the bugs so that every test passes. Do not change the tests.

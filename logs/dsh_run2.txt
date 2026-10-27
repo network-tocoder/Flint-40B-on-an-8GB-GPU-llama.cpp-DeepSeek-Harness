@@ -1,0 +1,42 @@
+dsh: reasoning:
+Let me start by exploring the repo structure and running the tests.
+dsh: reasoning:
+Bugs:
+
+1. `parse_price`: "1,299.50" should be 1299.5. Current code replaces "." with "" → "1299,50"?? Wait, error: could not convert string to float: '1,29950'. So "$45" → cleaned = "45", replace "." → "45", float fine. "1,299.50" → cleaned = "1,299.50", replace "." with "" → "1,29950", replace comma? No, comma not handled. Actually cleaned.replace(".", "") gives "1,29950". Then float fails. Fix: remove commas and currency symbols, handle decimal point properly.
+
+Correct: strip "$", strip commas, then float. "1,299.50" → "1299.50" → 1299.5. "$45" → "45" → 45.0.
+
+But careful: replace "." with "" is wrong for decimals. Just remove "$" and "," and strip.
+
+```python
+cleaned = text.replace("$", "").replace(",", "").strip()
+return float(cleaned)
+```
+
+2. `apply_discount`: apply_discount(200, 10) == 180.0, apply_discount(99.99, 0) == 99.99. Current: price - percent = 190. Should be price * (1 - percent/100). Fix: `return round(price * (1 - percent / 100), 2)`.
+
+Check: 200 * 0.9 = 180.0 ✓; 99.99 * 1.0 = 99.99 ✓.
+
+3. `top_n`: should return n most expensive, highest first, sorted descending. Test test_top_n: items a=5,b=50,c=20, n=2 → ["b","c"]. test_top_n_all: n=5 > len, returns all sorted desc by price → ["b","a"].
+
+Fix: `ranked = sorted(products, key=lambda p: p["price"], reverse=True); return ranked[:n]`
+
+Check test_top_n: sorted desc → b(50), c(20), a(5); [:2] = [b, c] ✓. All: b(2), a(1) ✓.
+
+Also check __init__.py.
+dsh: reasoning:
+Now fix the bugs.
+dsh: reasoning:
+Sandbox permissions not needed. Retry without them.
+dsh: reasoning:
+All 6 tests pass. Done.
+All 6 tests now pass. Here's a summary of the bugs found and fixed in `shop/`:
+
+1. **`shop/pricing.py` — `parse_price`**: Failed on thousands separators like `"1,299.50"`. The code removed the decimal point (`replace(".", "")`) which mangled decimal values, and never handled commas. Fixed by stripping `$` and `,` characters, then converting via `float()`.
+
+2. **`shop/pricing.py` — `apply_discount`**: Computed `price - percent` instead of applying a percentage discount. Fixed to `price * (1 - percent / 100)`, so `apply_discount(200, 10)` → `180.0` and `apply_discount(99.99, 0)` → `99.99`.
+
+3. **`shop/ranking.py` — `top_n`**: Sorted products ascending (lowest first) and returned the first `n`, which gives the *cheapest* items. Fixed with `reverse=True` to sort descending by price, returning the highest-priced items first.
+
+Final result: `python -m pytest -q` → **6 passed**.

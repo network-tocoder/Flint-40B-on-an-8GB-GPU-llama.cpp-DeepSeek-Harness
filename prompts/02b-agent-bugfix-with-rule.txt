@@ -1,0 +1,3 @@
+Run the tests with python -m pytest -q. Some of them fail because of bugs in the shop package. Find and fix the bugs so that every test passes. Do not change the tests.
+
+RULE: When you call the write or edit tool, pass ONLY the file path and the content. Never add justification or sandbox_permissions. Never describe a change without making it.
